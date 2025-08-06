@@ -48,10 +48,6 @@ function runCommand(command) {
       listCommands();
       break;
 
-    case "schelp":
-      showSubjectHelp(args);
-      break;
-
     case "goto":
       loadPage(args[0]);
       break;
@@ -71,6 +67,10 @@ function runCommand(command) {
     case "clearstorage":
     case "clearlocal":
       clearLocalStorage();
+      break;
+
+    case "websites":
+      showWebsites();
       break;
 
     default:
@@ -107,9 +107,9 @@ function listCommands() {
     "timer - Set a countdown timer",
     "goto {page} - Navigate internal pages",
     "ai {question} - Ask Gemini AI",
-    "schelp {grade} {subject} - Subject help",
     "social {flirt/look-better/compliment} - Social tips",
     "newcmd - Create a custom command",
+    "websites - Show useful websites",
     "help / cmds - List all commands"
   ];
   print("📖 CoreLearning Terminal Commands:\n" + cmds.join("\n"));
@@ -133,21 +133,6 @@ function timerPrompt() {
   }
   print(`⏳ Timer started for ${minutes} minute(s).`);
   setTimeout(() => print("⏰ Time's up!"), minutes * 60000);
-}
-
-function showSubjectHelp(args) {
-  if (args.length < 2) {
-    print("Usage: schelp {grade} {subject}");
-    return;
-  }
-  const [grade, subject] = args;
-  const subjectHelp = {
-    math: `Grade ${grade} Math: Practice equations, decimals, and fractions.`,
-    science: `Grade ${grade} Science: Biology, chemistry, physics basics.`,
-    history: `Grade ${grade} History: Study ancient to modern civilizations.`,
-    english: `Grade ${grade} English: Reading, grammar, and writing skills.`,
-  };
-  print(subjectHelp[subject.toLowerCase()] || "No help found for that subject.");
 }
 
 function loadPage(page) {
@@ -185,6 +170,22 @@ function clearLocalStorage() {
   print("✅ Local storage cleared. Terminal reset.");
 }
 
+function showWebsites() {
+  const sites = [
+    { name: "Bypassing Atomic", url: "https://bypassing-atomic.w3spaces.com/" },
+    { name: "Demonlord VIP", url: "https://demonlord.vip" },
+    { name: "Dark Nexus Arcade", url: "https://darknexusarcade.org" }
+  ];
+
+  print("🌐 Useful Websites:");
+  sites.forEach(site => {
+    output.innerHTML += `<a href="${site.url}" target="_blank" style="color:#00ff00; text-decoration: underline;">${site.name}</a>\n`;
+  });
+  output.scrollTop = output.scrollHeight;
+}
+
+// Gemini AI integration (test only, key exposed!)
+
 async function geminiAI(promptText) {
   if (!promptText) {
     print("AI: Try something like 'ai explain gravity'");
@@ -192,7 +193,7 @@ async function geminiAI(promptText) {
   }
   print("🤖 AI is thinking...");
 
-  const apiKey = "AIzaSyCTEJO-_5AtzH50CWRO6p-5vDJ5RbmJ1V0"; // For testing only
+  const apiKey = "AIzaSyCTEJO-_5AtzH50CWRO6p-5vDJ5RbmJ1V0"; // Testing only
   const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey;
 
   const body = {
