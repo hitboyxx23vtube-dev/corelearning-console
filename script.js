@@ -2,7 +2,7 @@ const input = document.getElementById("commandInput");
 const output = document.getElementById("output");
 
 const commands = {
-  cls: () => output.innerText = "",
+  cls: () => output.innerHTML = "",
 
   help: () => {
     print(`Available commands:
@@ -10,10 +10,8 @@ const commands = {
   - help: Show this help menu
   - calc [expression]: Calculate math (supports + - * / times x)
   - timer [seconds]: Start a countdown timer
-  - goto [page]: Navigate to a page (e.g., 'goto math')
   - ai [prompt]: Ask the AI a question
-  - save [key] [value]: Save progress
-  - load [key]: Load progress
+  - support [topic]: Get social help (e.g., flirting, confidence)
   - clearstorage: Clear all saved data
   - websites: Show useful links
   - newcmd [name] [response]: Create custom commands`);
@@ -46,41 +44,28 @@ const commands = {
     }, 1000);
   },
 
-  goto: (page) => {
-    if (!page) return print("Usage: goto [page]");
-    print(`Loading internal page: ${page}...`);
-    // Simulate page navigation or load local content
-  },
-
   ai: async (...promptWords) => {
     const prompt = promptWords.join(" ");
     if (!prompt) return print("Usage: ai [prompt]");
 
     print(`🤖 Thinking...`);
 
-    const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyCTEJO-_5AtzH50CWRO6p-5vDJ5RbmJ1V0", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
-      })
-    });
+    try {
+      const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyCTEJO-_5AtzH50CWRO6p-5vDJ5RbmJ1V0", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }]
+        })
+      });
 
-    const data = await res.json();
-    const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    print(aiResponse || "AI did not return a response.");
-  },
-
-  save: (key, ...value) => {
-    if (!key || value.length === 0) return print("Usage: save [key] [value]");
-    localStorage.setItem(key, value.join(" "));
-    print(`Saved "${key}"`);
-  },
-
-  load: (key) => {
-    const value = localStorage.getItem(key);
-    if (value === null) return print(`No value found for "${key}"`);
-    print(`${key}: ${value}`);
+      const data = await res.json();
+      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      print(aiResponse || "AI did not return a response.");
+    } catch (err) {
+      print("AI request failed.");
+      console.error(err);
+    }
   },
 
   clearstorage: () => {
@@ -95,6 +80,24 @@ const commands = {
 - https://darknexusarcade.org`);
   },
 
+  support: (topic) => {
+    const lower = topic?.toLowerCase();
+    switch (lower) {
+      case "flirting":
+        print("😏 Be confident, make eye contact, and keep it fun. Compliment something unique.");
+        break;
+      case "looking":
+      case "better":
+        print("✨ Dress clean, stay groomed, smile often, and walk with confidence.");
+        break;
+      case "confidence":
+        print("💪 Practice positive self-talk, stand tall, and take small risks to build up.");
+        break;
+      default:
+        print("Usage: support [flirting|looking|better|confidence]");
+    }
+  },
+
   newcmd: (name, ...responseWords) => {
     if (!name || responseWords.length === 0) return print("Usage: newcmd [name] [response]");
     const response = responseWords.join(" ");
@@ -104,7 +107,13 @@ const commands = {
 };
 
 function print(text) {
-  output.innerText += text + "\n";
+  // Convert URLs in text to clickable links
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const html = text.replace(urlRegex, url => {
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#00ff00; text-decoration: underline;">${url}</a>`;
+  });
+
+  output.innerHTML += html + "<br/>";
   output.scrollTop = output.scrollHeight;
 }
 
