@@ -91,7 +91,7 @@ const commands = {
   websites: () => {
     print(`🌐 Useful Links:
 - https://bypassing-atomic.w3spaces.com/
-- https://demonlord.vip
+- https://demonlord-hitboy.vip
 - https://darknexusarcade.org`);
   },
 
