@@ -9,15 +9,15 @@ window.addEventListener("load", () => {
 
   const savedCmds = localStorage.getItem("customCommands");
   if (savedCmds) customCommands = JSON.parse(savedCmds);
+  input.focus();
 });
 
 window.addEventListener("click", () => input.focus());
-input.focus();
 
 input.addEventListener("keydown", function (event) {
   if (event.key === "Enter") {
     const command = input.value.trim();
-    runCommand(command);
+    if (command) runCommand(command);
     input.value = "";
   }
 });
@@ -44,6 +44,7 @@ function runCommand(command) {
       break;
 
     case "help":
+    case "cmds":
       listCommands();
       break;
 
@@ -67,6 +68,11 @@ function runCommand(command) {
       createNewCommand();
       break;
 
+    case "clearstorage":
+    case "clearlocal":
+      clearLocalStorage();
+      break;
+
     default:
       if (customCommands[baseCmd]) {
         print(customCommands[baseCmd]);
@@ -80,7 +86,7 @@ function runCommand(command) {
 
 function print(text) {
   output.innerHTML += text + "\n";
-  window.scrollTo(0, document.body.scrollHeight);
+  output.scrollTop = output.scrollHeight;
 }
 
 function clearOutput() {
@@ -93,21 +99,20 @@ function saveHistory() {
   localStorage.setItem("customCommands", JSON.stringify(customCommands));
 }
 
-// === Command Functions ===
-
 function listCommands() {
   const cmds = [
     "cls / clear - Clear the terminal",
+    "clearstorage / clearlocal - Clear all saved progress",
     "calculator - Open calculator prompt",
     "timer - Set a countdown timer",
-    "goto {page} - Navigate to a built-in page",
+    "goto {page} - Navigate internal pages",
     "ai {question} - Ask Gemini AI",
-    "schelp {grade} {subject} - Get subject help",
+    "schelp {grade} {subject} - Subject help",
     "social {flirt/look-better/compliment} - Social tips",
     "newcmd - Create a custom command",
-    "help - Show this list"
+    "help / cmds - List all commands"
   ];
-  print("📖 Available Commands:\n" + cmds.join("\n"));
+  print("📖 CoreLearning Terminal Commands:\n" + cmds.join("\n"));
 }
 
 function calculator() {
@@ -135,60 +140,59 @@ function showSubjectHelp(args) {
     print("Usage: schelp {grade} {subject}");
     return;
   }
-
   const [grade, subject] = args;
   const subjectHelp = {
     math: `Grade ${grade} Math: Practice equations, decimals, and fractions.`,
-    science: `Grade ${grade} Science: Learn about biology, chemistry, and physics.`,
+    science: `Grade ${grade} Science: Biology, chemistry, physics basics.`,
     history: `Grade ${grade} History: Study ancient to modern civilizations.`,
-    english: `Grade ${grade} English: Reading comprehension, grammar, writing.`,
+    english: `Grade ${grade} English: Reading, grammar, and writing skills.`,
   };
-
   print(subjectHelp[subject.toLowerCase()] || "No help found for that subject.");
 }
 
 function loadPage(page) {
   const pages = {
-    home: "🏠 Home Page - Use 'goto about', 'goto math', etc.",
-    about: "ℹ️ About: This is a homeschool terminal learning assistant.",
-    math: "➗ Math Page: Equations, Geometry, Algebra coming soon.",
-    science: "🧪 Science Page: Topics on Earth, Life, and Physical Sciences.",
+    home: "🏠 Welcome to CoreLearning Terminal! Use 'goto about', 'goto math', etc.",
+    about: "ℹ️ CoreLearning Terminal helps you study interactively through commands.",
+    math: "➗ Math Page: Practice problems and math tips (coming soon).",
+    science: "🧪 Science Page: Learn about physics, chemistry, and biology.",
   };
-
   print(pages[page?.toLowerCase()] || `Page '${page}' not found.`);
 }
 
 function socialHelp(topic) {
-  const replies = {
-    flirt: "💬 Be yourself, stay kind, and be confident!",
-    "look-better": "🪞 Stand tall, smile, dress sharp, and stay clean.",
-    compliment: "😊 Compliments like 'I like your vibe' can go a long way!",
+  const tips = {
+    flirt: "💬 Flirting Tip: Be kind, confident, and listen carefully.",
+    "look-better": "🪞 Tip: Stand tall, dress clean, smile often, stay hydrated.",
+    compliment: "😊 Compliment Tip: Be genuine and specific.",
   };
-
-  print(replies[topic?.toLowerCase()] || "Try: flirt, look-better, compliment");
+  print(tips[topic?.toLowerCase()] || "Try: flirt, look-better, compliment");
 }
 
 function createNewCommand() {
   const name = prompt("Enter new command name:");
-  if (!name) return print("Command name required.");
-  const response = prompt("Enter the response:");
-  if (!response) return print("Response required.");
-
+  if (!name) return print("Command name is required.");
+  const response = prompt("Enter the response for this command:");
+  if (!response) return print("Response is required.");
   customCommands[name.toLowerCase()] = response;
   saveHistory();
   print(`✅ Custom command '${name}' added.`);
 }
 
-// === Gemini AI Integration ===
+function clearLocalStorage() {
+  localStorage.clear();
+  clearOutput();
+  print("✅ Local storage cleared. Terminal reset.");
+}
+
 async function geminiAI(promptText) {
   if (!promptText) {
     print("AI: Try something like 'ai explain gravity'");
     return;
   }
-
   print("🤖 AI is thinking...");
 
-  const apiKey = "AIzaSyCTEJO-_5AtzH50CWRO6p-5vDJ5RbmJ1V0"; // ⚠️ For testing only
+  const apiKey = "AIzaSyCTEJO-_5AtzH50CWRO6p-5vDJ5RbmJ1V0"; // For testing only
   const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey;
 
   const body = {
@@ -205,10 +209,8 @@ async function geminiAI(promptText) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
     });
-
     const data = await res.json();
     const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
     if (reply) {
       print("AI: " + reply);
     } else {
