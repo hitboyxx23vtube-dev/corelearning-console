@@ -10,54 +10,38 @@ body {
   flex-direction: column;
 }
 
-.input-container {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  border-bottom: 1px solid #00ff00; /* You can remove this line if you want no line at all */
-  position: fixed;
-  top: 0;
-  width: 100%;
-  background-color: #000;
-  z-index: 1000;
-}
-
+/* Prompt fixed top left */
 .prompt {
-  margin-right: 5px;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  color: #00ff00;
+  font-weight: bold;
+  user-select: none;
 }
 
+/* Input fixed top, right of prompt */
 #commandInput {
+  position: fixed;
+  top: 10px;
+  left: 70px; /* space for prompt */
+  right: 10px;
   background: none;
   border: none;
   outline: none;
   box-shadow: none;
   color: #00ff00;
   font: inherit;
-  flex-grow: 1;
+  height: 1.5em;
 }
 
-#commandInput::-webkit-input-placeholder {
-  color: #006600;
-}
-
-#commandInput::-moz-placeholder {
-  color: #006600;
-}
-
-#commandInput:-ms-input-placeholder {
-  color: #006600;
-}
-
-#commandInput:-moz-placeholder {
-  color: #006600;
-}
-
+/* Output scrolls below input */
 #output {
-  margin-top: 48px; /* height of input-container + padding */
+  margin-top: 40px; /* space for fixed input */
   padding: 10px;
   flex-grow: 1;
   overflow-y: auto;
   white-space: pre-wrap;
   font-family: inherit;
-  height: calc(100vh - 48px);
+  height: calc(100vh - 40px);
 }
