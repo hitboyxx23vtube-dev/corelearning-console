@@ -14,7 +14,7 @@ body {
   display: flex;
   align-items: center;
   padding: 10px;
-  border-bottom: 1px solid #00ff00;
+  border-bottom: 1px solid #00ff00; /* You can remove this line if you want no line at all */
   position: fixed;
   top: 0;
   width: 100%;
@@ -29,10 +29,27 @@ body {
 #commandInput {
   background: none;
   border: none;
+  outline: none;
+  box-shadow: none;
   color: #00ff00;
   font: inherit;
-  outline: none;
   flex-grow: 1;
+}
+
+#commandInput::-webkit-input-placeholder {
+  color: #006600;
+}
+
+#commandInput::-moz-placeholder {
+  color: #006600;
+}
+
+#commandInput:-ms-input-placeholder {
+  color: #006600;
+}
+
+#commandInput:-moz-placeholder {
+  color: #006600;
 }
 
 #output {
